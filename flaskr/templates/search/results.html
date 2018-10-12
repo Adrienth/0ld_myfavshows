@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<h1>{% block title %}Search results{% endblock %}</h1>
+<a class="action" href="{{ url_for('search.search') }}">New search</a>
+{% endblock %}
+
+{% block content %}
+{% for result in results %}
+<article class="result">
+    <header>
+        <div>
+            <h1>{{ result['title'] }}</h1>
+            <div class="about">First aired on {{ result['date'] }} | Popularity of {{ result['popularity'] }}</div>
+        </div>
+        {% if g.user['id'] %}
+        <a class="action">+ Add to my favourites</a>
+        {% endif %}
+    </header>
+    <p class="body">{{ result['overview'] }}</p>
+
+</article>
+{% if not loop.last %}
+<hr>
+{% endif %}
+{% endfor %}
+{% endblock %}
