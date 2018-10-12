@@ -14,7 +14,11 @@
             <div class="about">First aired on {{ result['date'] }} | Popularity of {{ result['popularity'] }}</div>
         </div>
         {% if g.user['id'] %}
-        <a class="action">+ Add to my favourites</a>
+            {% if result['id'] in session.get('show_ids') %}
+            <a class="action">Already added</a>
+            {% else %}
+            <a class="action" href="{{ url_for('search.add_to_fav',show_id=result['id'], name=result['title'] ) }}">+ Add to my favourites</a>
+            {% endif %}
         {% endif %}
     </header>
     <p class="body">{{ result['overview'] }}</p>

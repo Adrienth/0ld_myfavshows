@@ -1,5 +1,5 @@
 from flask import (
-    Blueprint, flash, g, redirect, render_template, request, url_for
+    Blueprint, flash, g, redirect, render_template, request, url_for,session
 )
 from werkzeug.exceptions import abort
 
@@ -38,6 +38,21 @@ def search():
 @bp.route('/results/<query>',methods=('GET',))
 def get_results(query):
 
+    shows = []
+
+    if g.user is not None :
+        show_ids = get_db().execute(
+            'SELECT show_id'
+            ' FROM shows_users '
+            ' WHERE user_id = ?',
+            (session.get('user_id'),)
+        ).fetchall()
+
+        for show in show_ids:
+            shows += [show['show_id']]
+
+    session['show_ids'] = shows
+
     if query is None :
         query = 'house'
 
@@ -66,6 +81,24 @@ def get_results(query):
                 'overview' : res['overview'],
                 'id' : res['id']
             }]
-            print(results[-1])
-
     return render_template('search/results.html', results=results)
+
+
+#def get_fav_shows():
+
+
+@bp.route('/addtofav/<int:show_id>/<name>')
+@login_required
+def add_to_fav(show_id, name):
+
+
+    db = get_db()
+    db.execute(
+        'INSERT INTO shows_users (show_id, user_id)'
+        ' VALUES (?, ?)',
+        (show_id, g.user['id'])
+    )
+
+    flash('%s has been successfully added to your favourite TV Shows!' % name)
+    db.commit()
+    return redirect(request.referrer)
